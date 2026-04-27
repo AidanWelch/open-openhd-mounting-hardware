@@ -5,7 +5,7 @@ arm_thickness = 4;
 base_thickness = 2;
 wall_thickness = 3;
 
-fc_mount_dist = 35;
+fc_mount_dist = 25.5 ;
 fc_angle = 45;
 
 mount_hole_d = 2.75;
@@ -69,11 +69,11 @@ module camera_mount() {
 	mounting_external_distance_z = 14.65;
 	mounting_hole_diameter = 2;
 	
-	mh_c_x = (mounting_external_distance_x/2) - (mounting_hole_diameter/2);
-	mh_c_z = (mounting_external_distance_z/2) - (mounting_hole_diameter/2);
+	mh_c_x = mounting_external_distance_x - mounting_hole_diameter;
+	mh_c_z = mounting_external_distance_z - mounting_hole_diameter;
 	
 	camera_module_height = 24;
-	translate([0, 0, mh_c_z+wall_thickness+0.2])
+	translate([0, 0, mh_c_z])
 	rotate([90, 0, 0])
 	difference() {
 		translate([0, -wall_thickness/2, 0])
@@ -90,13 +90,15 @@ module motor_mount(x, y) {
 	
 	motor_screw_center_distance = 9;
 	
-	fc_connect_right = [fc_mount_dist/2, 0, -1];
-	fc_connect_left = [-fc_mount_dist/2, 0, -1];
+	fc_connect_right = [sqrt(2)*fc_mount_dist*0.5, 0, -1];
+	fc_connect_left = [-sqrt(2)*fc_mount_dist*0.5, 0, -1];
 	
 	closer_connect = (x > 0) ? fc_connect_right : fc_connect_left;
 	motor_connect = [x, y, arm_thickness];
 	wire_color = (norm(motor_connect-closer_connect) < motor_cable_length) ? [0, 0.8, 0, 0.4] : [0.9, 0, 0, 0.9];
 	
+    echo(norm(motor_connect-closer_connect))
+    
 	% translate([x, y, 10])
 	% cylinder(h = 3, d = prop_length, center = true);
 	% color(c = wire_color)
@@ -129,21 +131,23 @@ module motor_mount(x, y) {
 	};
 	
 	arm_connection_d = 4;
+    
+    arm_y = (y > 0) ? 10 : -2;
 	
 	module arm_shape(){
 		hull(){
 			translate([x, y, arm_thickness/2])
 			cylinder(h = arm_thickness, d = arm_connection_d, center = true);
 			
-			translate([0, 0, arm_thickness/2])
+			translate([0, arm_y, arm_thickness/2])
 			cylinder(h = arm_thickness, d = motor_center_hole_d, center = true);
 			
-			translate([0, (y > 0) ? 10 : -10, arm_thickness/2])
+			translate([0, (y > 0) ? arm_y + 10 : arm_y + -10, arm_thickness/2])
 			cylinder(h = arm_thickness, d = motor_center_hole_d, center = true);
 		};
 	};
 	
-	centroid = ([x, y] + [0, 0] + [0, (y > 0) ? 10 : -10]) / 3;
+	centroid = ([x, y] + [0, arm_y] + [0, (y > 0) ? arm_y + 10 : arm_y + -10]) / 3;
 	
 	difference(){
 		arm_shape();
@@ -165,11 +169,11 @@ difference(){
 		translate([0, ((pi_center_y_distance+(wall_thickness*3))/2)+3, 0])
 		camera_mount();
 		
-		motor_mount(50, 39);
-		motor_mount(50, -39);
+		motor_mount(53.5, 37);
+		motor_mount(49.5, -41);
 		
-		motor_mount(-50, 39);
-		motor_mount(-50, -39);
+		motor_mount(-53.5, 37);
+		motor_mount(-49.5, -41);
 	};
 		
 	rotate([0, 0, fc_angle])
@@ -184,17 +188,17 @@ difference(){
 	translate([0, 3, 50 + base_thickness])
 	cylinder_rect(pi_center_x_distance, pi_center_y_distance, 100, mount_hole_divet_r, center = true);
 	
-	translate([0, -37, 0])
-	round_rect(12, 15, 100, mount_hole_r, center = true);
+	translate([0, -36, 0])
+	round_rect(12, 17, 100, mount_hole_r, center = true);
 	
 	translate([0, 0, 0])
-	round_rect(12, 38, 100, mount_hole_r, center = true);
+	round_rect(12, 30, 100, mount_hole_r, center = true);
 	
-	translate([15, 0, 0])
-	round_rect(10, 12, 100, mount_hole_r, center = true);
+	translate([13, 0, 0])
+	round_rect(4, 11, 100, mount_hole_r, center = true);
 	
-	translate([-15, 0, 0])
-	round_rect(10, 12, 100, mount_hole_r, center = true);
+	translate([-13, 0, 0])
+	round_rect(4, 11, 100, mount_hole_r, center = true);
 	
 	translate([0, 32, 0])
 	round_rect(10, 6, 100, mount_hole_r, center = true);
