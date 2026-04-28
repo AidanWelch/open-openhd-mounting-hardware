@@ -22,6 +22,10 @@ battery_holder_width = 21;
 
 motor_cable_length = 52;
 
+battery_index_d = 2;
+battery_index_offset_x = 3;
+battery_index_offset_y = 3;
+
 module cylinder_rect(l, w, h, r, center = false) {
 	hl = l/2;
 	hw = w/2;
@@ -202,4 +206,7 @@ difference(){
 	
 	translate([0, 32, 0])
 	round_rect(10, 6, 100, mount_hole_r, center = true);
+    
+    translate([(pi_center_x_distance/2) - battery_index_offset_x, (pi_center_y_distance/2) - battery_index_offset_y, 50 + base_thickness])
+    cylinder(h = 100, d = battery_index_d, center = true);
 }
